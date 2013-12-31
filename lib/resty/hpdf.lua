@@ -129,6 +129,21 @@ libharu.HPDF_Page_SetFontAndSize(page, font, 10);
 libharu.HPDF_Page_TextRect (page, left, top, right, bottom, SAMP_TXT, 1, nil);
 libharu.HPDF_Page_EndText (page);
 
+-- HPDF_TALIGN_CENTER 
+left = 25;
+top = 475;
+right = 200;
+bottom = top - 40;
+
+libharu.HPDF_Page_Rectangle(page, left, bottom, right - left, top - bottom)
+libharu.HPDF_Page_Stroke(page)
+libharu.HPDF_Page_BeginText(page)
+libharu.HPDF_Page_SetFontAndSize(page, font, 8)
+libharu.HPDF_Page_TextOut(page, left, top + 3, "HPDF_TALIGN_CENTER")
+libharu.HPDF_Page_SetFontAndSize(page, font, 10)
+libharu.HPDF_Page_TextRect(page, left, top, right, bottom, SAMP_TXT, 2, nil)
+libharu.HPDF_Page_EndText(page)
+
 -- save and close
 libharu.HPDF_SaveToFile(pdf, "testi.pdf")
 libharu.HPDF_Free(pdf)
