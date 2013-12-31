@@ -165,4 +165,3 @@ libharu.HPDF_Page_EndText(page)
 -- save and close
 libharu.HPDF_SaveToFile(pdf, "testi.pdf")
 libharu.HPDF_Free(pdf)
-
