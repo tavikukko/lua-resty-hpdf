@@ -30,7 +30,7 @@ typedef HPDF_HANDLE 	HPDF_EmbeddedFile;
 typedef HPDF_HANDLE 	HPDF_OutputIntent;
 typedef HPDF_HANDLE 	HPDF_Xref;
 typedef unsigned int 	HPDF_UINT;
-
+ 
 typedef enum _HPDF_TextAlignment {
     HPDF_TALIGN_LEFT = 0,
     HPDF_TALIGN_RIGHT,
