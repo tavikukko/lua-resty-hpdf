@@ -1,8 +1,8 @@
 local ffi        = require "ffi"
 local ffi_cdef   = ffi.cdef
-local ffi_string = ffi.string
 local libharu = ffi.load("/usr/local/openresty/nginx/lua/libhpdf.dylib")
--- print(libharu)
+-- path to libHaru 2.3.0RC2
+
 ffi_cdef[[
 typedef void *HPDF_HANDLE;
 typedef HPDF_HANDLE HPDF_Doc;
@@ -85,80 +85,21 @@ void * HPDF_Page_GSave(HPDF_Page page);
 void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
 ]]
 
--- consts
-local left = 25;
-local top = 545;
-local right = 200;
-local bottom = top - 40;
-local SAMP_TXT = "The quick brown fox jumps over the lazy dog..."
+local pdf = {}
+pdf.__index = pdf
 
--- create pdf
-local pdf = libharu.HPDF_New(nil, nil)
-libharu.HPDF_UseUTFEncodings(pdf)
-libharu.HPDF_SetCurrentEncoder(pdf, "UTF-8")
+function pdf.new(opts)
+	local self = setmetatable({}, pdf)
+	self.___ = libharu.HPDF_New(nil, nil)
+	libharu.HPDF_UseUTFEncodings(self.___)
+	libharu.HPDF_SetCurrentEncoder(self.___, "UTF-8")
 
--- create page
-local page = libharu.HPDF_AddPage(pdf)
-local fontname = libharu.HPDF_LoadTTFontFromFile(pdf, 
-						"/usr/local/openresty/nginx/lua/DejaVuSans.ttf", 1); 
-local font = libharu.HPDF_GetFont(pdf, fontname, "UTF-8")
-libharu.HPDF_Page_SetSize(page, 4, 0)
+	return self
+end
 
--- create content
-libharu.HPDF_Page_SetTextLeading(page, 20)
+function pdf:save(filename)
+	libharu.HPDF_SaveToFile(self.___, filename)
+	libharu.HPDF_Free(self.___)
+end
 
--- HPDF_TALIGN_LEFT
-libharu.HPDF_Page_Rectangle(page, left, bottom, right - left, top - bottom)
-libharu.HPDF_Page_Stroke(page)
-libharu.HPDF_Page_SetFontAndSize(page, font, 8)
-libharu.HPDF_Page_BeginText(page)
-libharu.HPDF_Page_TextOut(page, left, top + 3, "HPDF_TALIGN_LEFT")
-libharu.HPDF_Page_SetFontAndSize(page, font, 10)
-libharu.HPDF_Page_TextRect(page, left, top, right, bottom, SAMP_TXT, 0, nil)
-libharu.HPDF_Page_EndText(page)
-
--- HPDF_TALIGN_RIGTH
-left = 220;
-right = 395;
-
-libharu.HPDF_Page_Rectangle (page, left, bottom, right - left, top - bottom)
-libharu.HPDF_Page_Stroke(page)
-libharu.HPDF_Page_BeginText(page)
-libharu.HPDF_Page_SetFontAndSize(page, font, 8);
-libharu.HPDF_Page_TextOut(page, left, top + 3, "HPDF_TALIGN_RIGTH")
-libharu.HPDF_Page_SetFontAndSize(page, font, 10);
-libharu.HPDF_Page_TextRect (page, left, top, right, bottom, SAMP_TXT, 1, nil);
-libharu.HPDF_Page_EndText (page);
-
--- HPDF_TALIGN_CENTER 
-left = 25;
-top = 475;
-right = 200;
-bottom = top - 40;
-
-libharu.HPDF_Page_Rectangle(page, left, bottom, right - left, top - bottom)
-libharu.HPDF_Page_Stroke(page)
-libharu.HPDF_Page_BeginText(page)
-libharu.HPDF_Page_SetFontAndSize(page, font, 8)
-libharu.HPDF_Page_TextOut(page, left, top + 3, "HPDF_TALIGN_CENTER")
-libharu.HPDF_Page_SetFontAndSize(page, font, 10)
-libharu.HPDF_Page_TextRect(page, left, top, right, bottom, SAMP_TXT, 2, nil)
-libharu.HPDF_Page_EndText(page)
-
---HPDF_TALIGN_JUSTIFY
-left = 220
-right = 395
-
-libharu.HPDF_Page_Rectangle(page, left, bottom, right - left, top - bottom)
-libharu.HPDF_Page_Stroke(page)
-libharu.HPDF_Page_BeginText(page)
-libharu.HPDF_Page_SetFontAndSize(page, font, 8)
-libharu.HPDF_Page_TextOut(page, left, top + 3, "HPDF_TALIGN_JUSTIFY")
-libharu.HPDF_Page_SetFontAndSize(page, font, 10)
-libharu.HPDF_Page_TextRect(page, left, top, right, bottom, SAMP_TXT, 3, nil)
-libharu.HPDF_Page_EndText(page)
-
--- save and close
-libharu.HPDF_SaveToFile(pdf, "testi.pdf")
-libharu.HPDF_Free(pdf)
-
+return pdf
