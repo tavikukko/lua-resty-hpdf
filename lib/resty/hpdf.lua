@@ -1,6 +1,6 @@
-local ffi			= require "ffi"
-local ffi_cdef		= ffi.cdef
-local libharu		= ffi.load("/usr/local/openresty/nginx/lua/libhpdf.dylib")
+local ffi = require "ffi"
+local ffi_cdef = ffi.cdef
+local libharu = ffi.load("/usr/local/openresty/nginx/lua/libhpdf.dylib")
 -- path to libHaru 2.3.0RC2
 
 ffi_cdef[[
@@ -55,57 +55,57 @@ typedef enum _HPDF_PageDirection {
 	HPDF_PAGE_PORTRAIT = 0,
 	HPDF_PAGE_LANDSCAPE} HPDF_PageDirection;
 
-typedef signed int 	HPDF_BOOL;
-typedef float 		HPDF_REAL;
+typedef signed int HPDF_BOOL;
+typedef float HPDF_REAL;
 
-const char *	HPDF_GetVersion();
-typedef void	(*HPDF_Error_Handler) (unsigned long error_no, unsigned long detail_no, 
+const char * HPDF_GetVersion();
+typedef void (*HPDF_Error_Handler) (unsigned long error_no, unsigned long detail_no, 
 					void  *user_data);
-void *			HPDF_New(HPDF_Error_Handler user_error_fn, void *user_data);
-void *			HPDF_AddPage(HPDF_Doc pdf);
-float			HPDF_Page_GetHeight(HPDF_Page page);
-float			HPDF_Page_GetWidth(HPDF_Page page);
-void *			HPDF_GetFont(HPDF_Doc pdf, const char *font_name, const char *encoding_name);
-void *			HPDF_Page_SetFontAndSize(HPDF_Page page,HPDF_Font font, HPDF_REAL size);
-void *			HPDF_Page_BeginText(HPDF_Page page);
-void *			HPDF_Page_TextOut(HPDF_Page page, HPDF_REAL xpos, HPDF_REAL ypos, const char *text);
-void *			HPDF_Page_EndText(HPDF_Page page);
-void *			HPDF_Free(HPDF_Doc pdf);
-void *			HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
-void *			HPDF_UseUTFEncodings(HPDF_Doc pdf);
-void *			HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
-const char*		HPDF_LoadTTFontFromFile(HPDF_Doc pdf, const char *file_name, HPDF_BOOL embedding);
-void *			HPDF_Page_TextRect(HPDF_Page page, HPDF_REAL left, HPDF_REAL top, HPDF_REAL right, 
+void * HPDF_New(HPDF_Error_Handler user_error_fn, void *user_data);
+void * HPDF_AddPage(HPDF_Doc pdf);
+float HPDF_Page_GetHeight(HPDF_Page page);
+float HPDF_Page_GetWidth(HPDF_Page page);
+void * HPDF_GetFont(HPDF_Doc pdf, const char *font_name, const char *encoding_name);
+void * HPDF_Page_SetFontAndSize(HPDF_Page page,HPDF_Font font, HPDF_REAL size);
+void * HPDF_Page_BeginText(HPDF_Page page);
+void * HPDF_Page_TextOut(HPDF_Page page, HPDF_REAL xpos, HPDF_REAL ypos, const char *text);
+void * HPDF_Page_EndText(HPDF_Page page);
+void * HPDF_Free(HPDF_Doc pdf);
+void * HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
+void * HPDF_UseUTFEncodings(HPDF_Doc pdf);
+void * HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
+const char* HPDF_LoadTTFontFromFile(HPDF_Doc pdf, const char *file_name, HPDF_BOOL embedding);
+void * HPDF_Page_TextRect(HPDF_Page page, HPDF_REAL left, HPDF_REAL top, HPDF_REAL right, 
 					HPDF_REAL bottom, const char *text, HPDF_TextAlignment align, HPDF_UINT *len);
-void *			HPDF_Page_SetSize(HPDF_Page page, HPDF_PageSizes size, HPDF_PageDirection direction);
-void *			HPDF_Page_SetTextLeading(HPDF_Page page, HPDF_REAL value);
-void *			HPDF_Page_Rectangle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL width, HPDF_REAL height);
-void *			HPDF_Page_Stroke(HPDF_Page page);
-void *			HPDF_Page_GSave(HPDF_Page page);
-void *			HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
+void * HPDF_Page_SetSize(HPDF_Page page, HPDF_PageSizes size, HPDF_PageDirection direction);
+void * HPDF_Page_SetTextLeading(HPDF_Page page, HPDF_REAL value);
+void * HPDF_Page_Rectangle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL width, HPDF_REAL height);
+void * HPDF_Page_Stroke(HPDF_Page page);
+void * HPDF_Page_GSave(HPDF_Page page);
+void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
 ]]
 
 local pdf = {}
 pdf.__index = pdf
 
-setmetatable(pdf, {
-	__call = function (cls, ...)
-		return cls.new(...)
-	end,
+setmetatable(pdf, { 
+ __call = function (cls, ...)
+  return cls.new(...)
+ end,
 })
 
-function pdf.new(opts)
-	local self = setmetatable({}, pdf)
-	self.___ = libharu.HPDF_New(nil, nil)
-	libharu.HPDF_UseUTFEncodings(self.___)
-	libharu.HPDF_SetCurrentEncoder(self.___, "UTF-8")
+function pdf.new(opts) 
+ local self = setmetatable({}, pdf)
+ self.___ = libharu.HPDF_New(nil, nil)
+ libharu.HPDF_UseUTFEncodings(self.___)
+ libharu.HPDF_SetCurrentEncoder(self.___, "UTF-8")
 
-	return self
+ return self
 end
 
-function pdf:save(filename)
-	libharu.HPDF_SaveToFile(self.___, filename)
-	libharu.HPDF_Free(self.___)
+function pdf:save(filename) 
+ libharu.HPDF_SaveToFile(self.___, filename)
+ libharu.HPDF_Free(self.___)
 end
 
 return pdf
