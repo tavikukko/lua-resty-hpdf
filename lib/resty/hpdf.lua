@@ -1,6 +1,6 @@
 local ffi		= require "ffi"
-local ffi_cdef	= ffi.cdef
-local libharu	= ffi.load("/usr/local/openresty/nginx/lua/libhpdf.dylib")
+local ffi_cdef		= ffi.cdef
+local libharu		= ffi.load("/usr/local/openresty/nginx/lua/libhpdf.dylib")
 -- path to libHaru 2.3.0RC2
 
 ffi_cdef[[
