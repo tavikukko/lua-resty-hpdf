@@ -85,17 +85,17 @@ void * HPDF_Page_GSave(HPDF_Page page);
 void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
 ]]
 
-local pdf = {}
-pdf.__index = pdf
+local doc = {}
+doc.__index = doc
 
-setmetatable(pdf, { 
+setmetatable(doc, { 
  __call = function (cls, ...)
   return cls.new(...)
  end,
 })
 
-function pdf.new(opts) 
- local self = setmetatable({}, pdf)
+function doc.new(opts) 
+ local self = setmetatable({}, doc)
  self.___ = libharu.HPDF_New(nil, nil)
  libharu.HPDF_UseUTFEncodings(self.___)
  libharu.HPDF_SetCurrentEncoder(self.___, "UTF-8")
@@ -103,9 +103,9 @@ function pdf.new(opts)
  return self
 end
 
-function pdf:save(filename) 
+function doc:save(filename) 
  libharu.HPDF_SaveToFile(self.___, filename)
  libharu.HPDF_Free(self.___)
 end
 
-return pdf
+return doc
