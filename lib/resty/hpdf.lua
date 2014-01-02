@@ -60,7 +60,7 @@ typedef float HPDF_REAL;
 
 const char * HPDF_GetVersion();
 typedef void (*HPDF_Error_Handler) (unsigned long error_no, unsigned long detail_no, 
-					void  *user_data);
+			void  *user_data);
 void * HPDF_New(HPDF_Error_Handler user_error_fn, void *user_data);
 void * HPDF_AddPage(HPDF_Doc pdf);
 float HPDF_Page_GetHeight(HPDF_Page page);
@@ -76,7 +76,7 @@ void * HPDF_UseUTFEncodings(HPDF_Doc pdf);
 void * HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
 const char* HPDF_LoadTTFontFromFile(HPDF_Doc pdf, const char *file_name, HPDF_BOOL embedding);
 void * HPDF_Page_TextRect(HPDF_Page page, HPDF_REAL left, HPDF_REAL top, HPDF_REAL right, 
-					HPDF_REAL bottom, const char *text, HPDF_TextAlignment align, HPDF_UINT *len);
+			HPDF_REAL bottom, const char *text, HPDF_TextAlignment align, HPDF_UINT *len);
 void * HPDF_Page_SetSize(HPDF_Page page, HPDF_PageSizes size, HPDF_PageDirection direction);
 void * HPDF_Page_SetTextLeading(HPDF_Page page, HPDF_REAL value);
 void * HPDF_Page_Rectangle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL width, HPDF_REAL height);
