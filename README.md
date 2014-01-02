@@ -6,4 +6,4 @@ usage
 --------------
     local hpdf = require "hpdf"
     local pdf = hpdf()
-    pdf.save()
+    pdf:save()
