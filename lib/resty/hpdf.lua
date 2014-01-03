@@ -85,27 +85,96 @@ void * HPDF_Page_GSave(HPDF_Page page);
 void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
 ]]
 
-local doc = {}
+local doc = { pages = {} }
 doc.__index = doc
+doc.pages.__index = doc.pages
 
-setmetatable(doc, { 
- __call = function (cls, ...)
-  return cls.new(...)
- end,
-})
+local page = {}
+page.__index = page
 
-function doc.new(opts) 
- local self = setmetatable({}, doc)
- self.___ = libharu.HPDF_New(nil, nil)
- libharu.HPDF_UseUTFEncodings(self.___)
- libharu.HPDF_SetCurrentEncoder(self.___, "UTF-8")
+-- doc methods
+function doc.new(opts)
+    opts = opts or {}
+    local self = setmetatable({ pages = {} }, doc)
+    setmetatable(self.pages, doc.pages)
+    self.___ = libharu.HPDF_New(nil, nil)
 
- return self
+    self.pages.doc = self
+    return self
+end
+
+function doc:use_utf_encodings()
+	return libharu.HPDF_UseUTFEncodings(self.___)
+end
+
+function doc:set_current_encoder(encoder)
+	return libharu.HPDF_SetCurrentEncoder(self.___, encoder)
+end
+
+function doc:load_ttfont_from_file(path, embed)
+	return libharu.HPDF_LoadTTFontFromFile(self.___, path, embed)
+end
+
+function doc:load_ttfont_from_file(name, encoding)
+	return libharu.HPDF_GetFont(self.___, fontname, encoding)
 end
 
 function doc:save(filename) 
- libharu.HPDF_SaveToFile(self.___, filename)
- libharu.HPDF_Free(self.___)
+	return libharu.HPDF_SaveToFile(self.___, filename)
+end
+
+function doc:free()
+	return libharu.HPDF_Free(self.___)
+end
+
+--doc pages methods
+function doc.pages:add()
+    return page.new(self.doc, libharu.HPDF_AddPage(self.doc.___))
+end
+
+--page methods
+function page.new(doc, ___)
+    local self = setmetatable({}, page)
+    self.___ = ___
+
+    self.doc = doc
+    return self
+end
+
+function page:set_size()
+	return libharu.HPDF_Page_SetSize(self.___, 4, 0)
+end
+
+function page:text_leading()
+	return libharu.HPDF_Page_SetTextLeading(self.___, 20)
+end
+
+function page:rectangle()
+	return libharu.HPDF_Page_Rectangle(self.___, left, bottom, right - left, top - bottom)
+end
+
+function page:stroke()
+	return libharu.HPDF_Page_Stroke(self.___)
+end
+
+function page:set_font_and_size(font, size)
+	return libharu.HPDF_Page_SetFontAndSize(self.___, font, size)
+end
+
+function page:begin_text()
+	return libharu.HPDF_Page_BeginText(self.___)
+end
+
+function page:text_out(left, top, text)
+	return libharu.HPDF_Page_TextOut(self.___, left, top + 3, text)
+end
+
+function page:text_rect(left, top, right, bottom, text)
+	return libharu.HPDF_Page_TextRect(self.___, left, top, right, bottom, text, 0, nil)
+end
+
+function page:end_text()
+	return libharu.HPDF_Page_EndText(self.___)
 end
 
 return doc
