@@ -10,12 +10,12 @@ usage
     local top = 545;
     local right = 200;
     local bottom = top - 40;
-    local text = "The quick brown fox jumps over the lazy dog. joo jee"
+    local text = "The quick brown fox jumps over the lazy dog."
     
     local pdf = hpdf.new()
     pdf:use_utf_encodings()
 	
-	local fontname = pdf:load_ttfont_from_file("/usr/local/openresty/nginx/lua/DejaVuSans.ttf", 1)
+    local fontname = pdf:load_ttfont_from_file("/usr/local/openresty/nginx/lua/DejaVuSans.ttf", 1)
     local font = pdf:get_font(fontname, "UTF-8")
     local page = pdf.pages:add()
 
@@ -23,7 +23,7 @@ usage
     page:text_leading(20)
     page:set_font_and_size(font, 8)
     page:begin_text()
-    page:text_rect(left, top, right, bottom, text)
+    page:text_rect(left, top, right, bottom, text, 0, nil)
     page:end_text()
     
     pdf:save('document.pdf')
