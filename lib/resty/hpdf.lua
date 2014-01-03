@@ -141,16 +141,16 @@ function page.new(doc, ___)
     return self
 end
 
-function page:set_size(eka, toka)
-	return libharu.HPDF_Page_SetSize(self.___, eka, toka)
+function page:set_size(size, direction)
+	return libharu.HPDF_Page_SetSize(self.___, size, direction)
 end
 
 function page:text_leading(leading)
 	return libharu.HPDF_Page_SetTextLeading(self.___, leading)
 end
 
-function page:rectangle()
-	return libharu.HPDF_Page_Rectangle(self.___, left, bottom, right - left, top - bottom)
+function page:rectangle(x, y, width, height)
+	return libharu.HPDF_Page_Rectangle(self.___, x, y, width, height)
 end
 
 function page:stroke()
@@ -165,12 +165,12 @@ function page:begin_text()
 	return libharu.HPDF_Page_BeginText(self.___)
 end
 
-function page:text_out(left, top, text)
-	return libharu.HPDF_Page_TextOut(self.___, left, top + 3, text)
+function page:text_out(x, y, text)
+	return libharu.HPDF_Page_TextOut(self.___, x, y, text)
 end
 
-function page:text_rect(left, top, right, bottom, text)
-	return libharu.HPDF_Page_TextRect(self.___, left, top, right, bottom, text, 0, nil)
+function page:text_rect(left, top, right, bottom, text, align, len)
+	return libharu.HPDF_Page_TextRect(self.___, left, top, right, bottom, text, align, len)
 end
 
 function page:end_text()
