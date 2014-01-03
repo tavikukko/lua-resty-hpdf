@@ -115,8 +115,8 @@ function doc:load_ttfont_from_file(path, embed)
 	return libharu.HPDF_LoadTTFontFromFile(self.___, path, embed)
 end
 
-function doc:load_ttfont_from_file(name, encoding)
-	return libharu.HPDF_GetFont(self.___, fontname, encoding)
+function doc:get_font(name, encoding)
+	return libharu.HPDF_GetFont(self.___, name, encoding)
 end
 
 function doc:save(filename) 
@@ -141,12 +141,12 @@ function page.new(doc, ___)
     return self
 end
 
-function page:set_size()
-	return libharu.HPDF_Page_SetSize(self.___, 4, 0)
+function page:set_size(eka, toka)
+	return libharu.HPDF_Page_SetSize(self.___, eka, toka)
 end
 
-function page:text_leading()
-	return libharu.HPDF_Page_SetTextLeading(self.___, 20)
+function page:text_leading(leading)
+	return libharu.HPDF_Page_SetTextLeading(self.___, leading)
 end
 
 function page:rectangle()
