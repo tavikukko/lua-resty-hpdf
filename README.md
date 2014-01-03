@@ -19,11 +19,11 @@ usage
     local font = pdf:get_font(fontname, "UTF-8")
     local page = pdf.pages:add()
 
-    page:set_size(4, 0)
+    page:set_size("HPDF_PAGE_SIZE_A3", "HPDF_PAGE_PORTRAIT")
     page:text_leading(20)
     page:set_font_and_size(font, 8)
     page:begin_text()
-    page:text_rect(left, top, right, bottom, text, 0, nil)
+    page:text_rect(left, top, right, bottom, text, "HPDF_TALIGN_LEFT", nil)
     page:end_text()
     
     pdf:save('document.pdf')
