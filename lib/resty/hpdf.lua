@@ -131,7 +131,7 @@ end
 -- doc.font --
 function doc.font:load(...)
 	local arg={...}
-	if #arg < 3 and #arg > 0 then
+	if #arg > 0 then
 		local path = select(1, ...)
 		if string.ends(path:lower(),'.ttf') then
 			local embed = select(2, ...)
@@ -139,13 +139,11 @@ function doc.font:load(...)
 		elseif string.ends(path:lower(),'.afm') then
 			local pfmfilename = select(2, ...)
 			return libharu.HPDF_LoadType1FontFromFile(self.doc.___, path, pfmfilename)
+		elseif string.ends(path:lower(),'.ttc') then
+			local index = select(2, ...)
+			local embed = select(3, ...)
+			return libharu.HPDF_LoadTTFontFromFile2(self.doc.___, path, index, embed)
 		end
-	elseif #arg == 3 then
-		local path = select(1, ...)
-		local index = select(2, ...)
-		local embed = select(3, ...)
-		return libharu.HPDF_LoadTTFontFromFile2(self.doc.___, path, index, embed)
-	end
 	return nil
 end
 
