@@ -94,7 +94,7 @@ doc.font.__index = doc.font
 local page = {}
 page.__index = page
 
--- doc methods
+-- doc --
 function doc.new(opts)
     opts = opts or {}
     local self = setmetatable({ pages = {}, encoder = {}, font = {} }, doc)
@@ -110,7 +110,6 @@ function doc.new(opts)
     return self
 end
 
--- doc --
 function doc:save(filename) 
 	return libharu.HPDF_SaveToFile(self.___, filename)
 end
