@@ -6,6 +6,7 @@ usage
 --------------
 
     local hpdf = require "hpdf"
+    
     local left = 25;
     local top = 545;
     local right = 200;
@@ -13,13 +14,13 @@ usage
     local text = "The quick brown fox jumps over the lazy dog."
     
     local pdf = hpdf.new()
-    pdf:use_utf_encodings()
-	
-    local fontname = pdf:load_ttfont_from_file("/usr/local/openresty/nginx/lua/DejaVuSans.ttf", 1)
-    local font = pdf:get_font(fontname, "UTF-8")
+    pdf.encoder:use_utf_encodings()
+
+    local fontname = pdf.font:load("/usr/local/openresty/nginx/lua/DejaVuSans.ttf", 1)
+    local font = pdf.font:get(fontname, "UTF-8")
     local page = pdf.pages:add()
 
-    page:set_size("HPDF_PAGE_SIZE_A3", "HPDF_PAGE_PORTRAIT")
+    page:set_size("HPDF_PAGE_SIZE_A4", "HPDF_PAGE_PORTRAIT")
     page:text_leading(20)
     page:set_font_and_size(font, 8)
     page:begin_text()
