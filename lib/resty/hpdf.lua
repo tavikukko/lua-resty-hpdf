@@ -131,7 +131,7 @@ end
 -- doc.font --
 function doc.font:load(...)
 	local arg={...}
-	if #arg < 3 then
+	if #arg < 3 and #arg > 0 then
 		local path = select(1, ...)
 		if string.ends(path:lower(),'.ttf') then
 			local embed = select(2, ...)
