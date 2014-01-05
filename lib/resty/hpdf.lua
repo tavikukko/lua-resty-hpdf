@@ -144,6 +144,7 @@ function doc.font:load(...)
 			local embed = select(3, ...)
 			return libharu.HPDF_LoadTTFontFromFile2(self.doc.___, path, index, embed)
 		end
+	end	
 	return nil
 end
 
