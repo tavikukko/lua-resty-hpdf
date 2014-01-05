@@ -85,9 +85,11 @@ void * HPDF_Page_GSave(HPDF_Page page);
 void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
 ]]
 
-local doc = { pages = {} }
+local doc = { pages = {}, encoder = {}, font = {} }
 doc.__index = doc
 doc.pages.__index = doc.pages
+doc.encoder.__index = doc.encoder
+doc.font.__index = doc.font
 
 local page = {}
 page.__index = page
@@ -95,30 +97,20 @@ page.__index = page
 -- doc methods
 function doc.new(opts)
     opts = opts or {}
-    local self = setmetatable({ pages = {} }, doc)
+    local self = setmetatable({ pages = {}, encoder = {}, font = {} }, doc)
     setmetatable(self.pages, doc.pages)
+    setmetatable(self.encoder, doc.encoder)
+	setmetatable(self.font, doc.font)
+
     self.___ = libharu.HPDF_New(nil, nil)
 
     self.pages.doc = self
+    self.encoder.doc = self
+	self.font.doc = self
     return self
 end
 
-function doc:use_utf_encodings()
-	return libharu.HPDF_UseUTFEncodings(self.___)
-end
-
-function doc:set_current_encoder(encoder)
-	return libharu.HPDF_SetCurrentEncoder(self.___, encoder)
-end
-
-function doc:load_ttfont_from_file(path, embed)
-	return libharu.HPDF_LoadTTFontFromFile(self.___, path, embed)
-end
-
-function doc:get_font(name, encoding)
-	return libharu.HPDF_GetFont(self.___, name, encoding)
-end
-
+-- doc --
 function doc:save(filename) 
 	return libharu.HPDF_SaveToFile(self.___, filename)
 end
@@ -127,12 +119,44 @@ function doc:free()
 	return libharu.HPDF_Free(self.___)
 end
 
---doc pages methods
+-- doc.encoder --
+function doc.encoder:use_utf_encodings()
+	return libharu.HPDF_UseUTFEncodings(self.doc.___)
+end
+
+function doc.encoder:set_current_encoder(encoder)
+	return libharu.HPDF_SetCurrentEncoder(self.doc.___, encoder)
+end
+-- doc.font --
+function doc.font:load(...)
+	local arg={...}
+	if #arg == 2 then
+		local path = select(1, ...)
+		if string.ends(path:lower(),'.ttf') then
+			local embed = select(2, ...)
+			return libharu.HPDF_LoadTTFontFromFile(self.doc.___, path, embed)
+		elseif string.ends(path:lower(),'.afm') then
+			local pfmfilename = select(2, ...)
+			-- return HPDF_LoadType1FontFromFile(self.doc.___,path, pfmfilename)
+		end
+	elseif #arg == 3 then
+		local index = select(2, ...)
+		local embed = select(3, ...)
+		-- return HPDF_LoadTTFontFromFile2 (self.doc.___, path, index, embed)
+	end
+	return nil
+end
+
+function doc.font:get(name, encoding)
+	return libharu.HPDF_GetFont(self.doc.___, name, encoding)
+end
+
+-- doc.pages 
 function doc.pages:add()
     return page.new(self.doc, libharu.HPDF_AddPage(self.doc.___))
 end
 
---page methods
+-- page
 function page.new(doc, ___)
     local self = setmetatable({}, page)
     self.___ = ___
@@ -175,6 +199,11 @@ end
 
 function page:end_text()
 	return libharu.HPDF_Page_EndText(self.___)
+end
+
+-- helpers
+function string.ends(String,End)
+   return End=='' or string.sub(String,-string.len(End))==End
 end
 
 return doc
