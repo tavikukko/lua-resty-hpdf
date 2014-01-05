@@ -75,6 +75,8 @@ void * HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
 void * HPDF_UseUTFEncodings(HPDF_Doc pdf);
 void * HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
 const char* HPDF_LoadTTFontFromFile(HPDF_Doc pdf, const char *file_name, HPDF_BOOL embedding);
+const char* HPDF_LoadType1FontFromFile(HPDF_Doc pdf, const char *afm_file_name, const char *data_file_name);
+const char* HPDF_LoadTTFontFromFile2(HPDF_Doc pdf, const char *file_name, HPDF_UINT index, HPDF_BOOL embedding);
 void * HPDF_Page_TextRect(HPDF_Page page, HPDF_REAL left, HPDF_REAL top, HPDF_REAL right, 
 			HPDF_REAL bottom, const char *text, HPDF_TextAlignment align, HPDF_UINT *len);
 void * HPDF_Page_SetSize(HPDF_Page page, HPDF_PageSizes size, HPDF_PageDirection direction);
@@ -129,19 +131,20 @@ end
 -- doc.font --
 function doc.font:load(...)
 	local arg={...}
-	if #arg == 2 then
+	if #arg < 3 then
 		local path = select(1, ...)
 		if string.ends(path:lower(),'.ttf') then
 			local embed = select(2, ...)
 			return libharu.HPDF_LoadTTFontFromFile(self.doc.___, path, embed)
 		elseif string.ends(path:lower(),'.afm') then
 			local pfmfilename = select(2, ...)
-			-- return HPDF_LoadType1FontFromFile(self.doc.___,path, pfmfilename)
+			return libharu.HPDF_LoadType1FontFromFile(self.doc.___, path, pfmfilename)
 		end
 	elseif #arg == 3 then
+		local path = select(1, ...)
 		local index = select(2, ...)
 		local embed = select(3, ...)
-		-- return HPDF_LoadTTFontFromFile2 (self.doc.___, path, index, embed)
+		return libharu.HPDF_LoadTTFontFromFile2(self.doc.___, path, index, embed)
 	end
 	return nil
 end
