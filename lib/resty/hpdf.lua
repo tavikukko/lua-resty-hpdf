@@ -55,6 +55,14 @@ typedef enum _HPDF_PageDirection {
 	HPDF_PAGE_PORTRAIT = 0,
 	HPDF_PAGE_LANDSCAPE} HPDF_PageDirection;
 
+typedef enum _HPDF_PageNumStyle {
+    HPDF_PAGE_NUM_STYLE_DECIMAL = 0,
+    HPDF_PAGE_NUM_STYLE_UPPER_ROMAN,
+    HPDF_PAGE_NUM_STYLE_LOWER_ROMAN,
+    HPDF_PAGE_NUM_STYLE_UPPER_LETTERS,
+    HPDF_PAGE_NUM_STYLE_LOWER_LETTERS,
+    HPDF_PAGE_NUM_STYLE_EOF} HPDF_PageNumStyle;
+
 typedef signed int HPDF_BOOL;
 typedef float HPDF_REAL;
 
@@ -73,7 +81,13 @@ void * HPDF_Page_EndText(HPDF_Page page);
 void * HPDF_Free(HPDF_Doc pdf);
 void * HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
 void * HPDF_UseUTFEncodings(HPDF_Doc pdf);
+void * HPDF_UseJPEncodings(HPDF_Doc pdf);
+void * HPDF_UseKREncodings(HPDF_Doc pdf);
+void * HPDF_UseCNSEncodings(HPDF_Doc pdf);
+void * HPDF_UseCNTEncodings(HPDF_Doc pdf);
+void * HPDF_GetEncoder(HPDF_Doc pdf, const char *encoding_name);
 void * HPDF_SetCurrentEncoder(HPDF_Doc pdf, const char *encoding_name);
+void * HPDF_GetCurrentEncoder(HPDF_Doc pdf);
 const char* HPDF_LoadTTFontFromFile(HPDF_Doc pdf, const char *file_name, HPDF_BOOL embedding);
 const char* HPDF_LoadType1FontFromFile(HPDF_Doc pdf, const char *afm_file_name, const char *data_file_name);
 const char* HPDF_LoadTTFontFromFile2(HPDF_Doc pdf, const char *file_name, HPDF_UINT index, HPDF_BOOL embedding);
@@ -84,6 +98,8 @@ void * HPDF_Page_SetTextLeading(HPDF_Page page, HPDF_REAL value);
 void * HPDF_Page_Rectangle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL width, HPDF_REAL height);
 void * HPDF_Page_Stroke(HPDF_Page page);
 void * HPDF_Page_GSave(HPDF_Page page);
+void * HPDF_AddPageLabel(HPDF_Doc pdf, HPDF_UINT page_num, HPDF_PageNumStyle style, HPDF_UINT first_page, 
+			const char *prefix);
 void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
 ]]
 
@@ -121,13 +137,33 @@ function doc:free()
 end
 
 -- doc.encoder --
-function doc.encoder:use_utf_encodings()
-	return libharu.HPDF_UseUTFEncodings(self.doc.___)
-end
-
-function doc.encoder:set_current_encoder(encoder)
+function doc.encoder:set(encoder)
 	return libharu.HPDF_SetCurrentEncoder(self.doc.___, encoder)
 end
+
+function doc.encoder:get(...)
+	local arg={...}
+	if #arg == 1 then
+		local name = select(1, ...)
+		return libharu.HPDF_GetEncoder(self.doc.___, name)
+	elseif #arg == 0 then
+		return libharu.HPDF_GetCurrentEncoder(self.doc.___)
+	end
+	return nil
+end
+
+function doc.encoder:use(...)
+	local name = select(1, ...)
+	if not name then return nil end
+	if name:lower() == 'utf' then return libharu.HPDF_UseUTFEncodings(self.doc.___)
+	elseif name:lower() == 'jp' then return libharu.HPDF_UseJPEncodings(self.doc.___)
+	elseif name:lower() == 'kr' then return libharu.HPDF_UseKREncodings(self.doc.___)
+	elseif name:lower() == 'cns' then return libharu.HPDF_UseCNSEncodings(self.doc.___)
+	elseif name:lower() == 'cnt' then return libharu.HPDF_UseCNTEncodings(self.doc.___)
+	end
+	return nil
+end
+
 -- doc.font --
 function doc.font:load(...)
 	local arg={...}
@@ -150,6 +186,19 @@ end
 
 function doc.font:get(name, encoding)
 	return libharu.HPDF_GetFont(self.doc.___, name, encoding)
+end
+
+function doc.font:labels(...)
+	local arg={...}
+	print(#arg)
+	if #arg == 4 then
+		return libharu.HPDF_AddPageLabel(self.doc.___, 
+										select(1, ...), 
+										select(2, ...), 
+										select(3, ...), 
+										select(4, ...))
+	end
+	return nil
 end
 
 -- doc.pages 
