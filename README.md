@@ -119,6 +119,30 @@ usage
 	page:end_text()
 	page:grestore()
 
+    -- text along a circle 
+    angle1 = 360 / string.len(text)
+    angle2 = 180
+
+    page:gray_stroke(0)
+	page:circle(210, 190, 145)
+	page:circle(210, 190, 113)
+	page:stroke()
+	page:begin_text()
+	page:set_font_and_size(font, 15)
+
+    for i = 0, string.len(text) - 1, 1 do
+	rad1 = (angle2 - 90) / 180 * 3.141592
+	rad2 = angle2 / 180 * 3.141592
+	local x = 210 + math.cos(rad2) * 122
+	local y = 190 + math.sin(rad2) * 122
+	page:text_matrix(math.cos(rad1), math.sin(rad1), -math.sin(rad1), math.cos(rad1), x, y)
+	local chr = text:sub(i,i)
+	page:text_show(chr)
+	angle2 = angle2 - angle1
+    end
+
+	page:end_text()
+
 
     pdf:save('document.pdf')
     pdf:free()
