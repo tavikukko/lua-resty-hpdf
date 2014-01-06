@@ -99,7 +99,12 @@ void * HPDF_Page_Rectangle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL w
 void * HPDF_Page_Stroke(HPDF_Page page);
 void * HPDF_Page_GSave(HPDF_Page page);
 void * HPDF_Page_GRestore(HPDF_Page page);
-void * HPDF_Page_Concat(HPDF_Page page,HPDF_REAL a, HPDF_REAL b, HPDF_REAL c, HPDF_REAL d, HPDF_REAL x, HPDF_REAL y);
+void * HPDF_Page_SetGrayStroke(HPDF_Page page, HPDF_REAL gray);
+void * HPDF_Page_Circle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL ray);
+void * HPDF_Page_Concat(HPDF_Page page,HPDF_REAL a, HPDF_REAL b, HPDF_REAL c, HPDF_REAL d, 
+				HPDF_REAL x, HPDF_REAL y);
+void * HPDF_Page_ShowText(HPDF_Page page,const char *text);
+void * HPDF_Page_SetTextMatrix(HPDF_Page page, HPDF_REAL a, HPDF_REAL b, HPDF_REAL c, HPDF_REAL d, HPDF_REAL x, HPDF_REAL y);
 void * HPDF_AddPageLabel(HPDF_Doc pdf, HPDF_UINT page_num, HPDF_PageNumStyle style, HPDF_UINT first_page, 
 			const char *prefix);
 void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
@@ -192,8 +197,8 @@ end
 
 function doc.font:labels(num, style, first, prefix)
 	return libharu.HPDF_AddPageLabel(self.doc.___, 
-					num, "HPDF_PAGE_NUM_STYLE_" .. style:upper(), 
-					first, prefix)
+			num, "HPDF_PAGE_NUM_STYLE_" .. style:upper(), 
+			first, prefix)
 end
 
 -- doc.pages 
@@ -212,7 +217,7 @@ end
 
 function page:set_size(size, direction)
 	return libharu.HPDF_Page_SetSize(self.___, "HPDF_PAGE_SIZE_" .. size:upper(), 
-										"HPDF_PAGE_" .. direction:upper())
+					"HPDF_PAGE_" .. direction:upper())
 end
 
 function page:text_leading(leading)
@@ -257,9 +262,24 @@ function page:grestore()
 end
 
 function page:concat(a, b, c, d, x, y)
-	return libharu.HPDF_Page_Concat(self.___, a, b, c, d, x, y);
+	return libharu.HPDF_Page_Concat(self.___, a, b, c, d, x, y)
 end
 
+function page:gray_stroke(gray)
+	return libharu.HPDF_Page_SetGrayStroke(self.___, gray)
+end
+
+function page:circle(x, y, ray)
+	return libharu.HPDF_Page_Circle(self.___, x, y, ray)
+end
+
+function page:text_matrix(a,  b,  c,  d,  x,  y)
+	return libharu.HPDF_Page_SetTextMatrix(self.___, a,  b,  c,  d,  x,  y)
+end
+
+function page:text_show(text)
+	return libharu.HPDF_Page_ShowText(self.___, text)
+end
 
 -- helpers
 function string.ends(String,End)
