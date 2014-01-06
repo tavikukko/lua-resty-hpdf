@@ -98,6 +98,8 @@ void * HPDF_Page_SetTextLeading(HPDF_Page page, HPDF_REAL value);
 void * HPDF_Page_Rectangle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL width, HPDF_REAL height);
 void * HPDF_Page_Stroke(HPDF_Page page);
 void * HPDF_Page_GSave(HPDF_Page page);
+void * HPDF_Page_GRestore(HPDF_Page page);
+void * HPDF_Page_Concat(HPDF_Page page,HPDF_REAL a, HPDF_REAL b, HPDF_REAL c, HPDF_REAL d, HPDF_REAL x, HPDF_REAL y);
 void * HPDF_AddPageLabel(HPDF_Doc pdf, HPDF_UINT page_num, HPDF_PageNumStyle style, HPDF_UINT first_page, 
 			const char *prefix);
 void * HPDF_SaveToFile(HPDF_Doc pdf, const char *file_name);
@@ -152,14 +154,14 @@ function doc.encoder:get(...)
 	return nil
 end
 
-function doc.encoder:use(...)
-	local name = select(1, ...)
+function doc.encoder:use(name)
 	if not name then return nil end
-	if name:lower() == 'utf' then return libharu.HPDF_UseUTFEncodings(self.doc.___)
-	elseif name:lower() == 'jp' then return libharu.HPDF_UseJPEncodings(self.doc.___)
-	elseif name:lower() == 'kr' then return libharu.HPDF_UseKREncodings(self.doc.___)
-	elseif name:lower() == 'cns' then return libharu.HPDF_UseCNSEncodings(self.doc.___)
-	elseif name:lower() == 'cnt' then return libharu.HPDF_UseCNTEncodings(self.doc.___)
+	name = name:lower()
+	if name == 'utf' then return libharu.HPDF_UseUTFEncodings(self.doc.___)
+	elseif name == 'jp' then return libharu.HPDF_UseJPEncodings(self.doc.___)
+	elseif name == 'kr' then return libharu.HPDF_UseKREncodings(self.doc.___)
+	elseif name == 'cns' then return libharu.HPDF_UseCNSEncodings(self.doc.___)
+	elseif name == 'cnt' then return libharu.HPDF_UseCNTEncodings(self.doc.___)
 	end
 	return nil
 end
@@ -188,17 +190,10 @@ function doc.font:get(name, encoding)
 	return libharu.HPDF_GetFont(self.doc.___, name, encoding)
 end
 
-function doc.font:labels(...)
-	local arg={...}
-	print(#arg)
-	if #arg == 4 then
-		return libharu.HPDF_AddPageLabel(self.doc.___, 
-										select(1, ...), 
-										select(2, ...), 
-										select(3, ...), 
-										select(4, ...))
-	end
-	return nil
+function doc.font:labels(num, style, first, prefix)
+	return libharu.HPDF_AddPageLabel(self.doc.___, 
+					num, "HPDF_PAGE_NUM_STYLE_" .. style:upper(), 
+					first, prefix)
 end
 
 -- doc.pages 
@@ -216,7 +211,8 @@ function page.new(doc, ___)
 end
 
 function page:set_size(size, direction)
-	return libharu.HPDF_Page_SetSize(self.___, size, direction)
+	return libharu.HPDF_Page_SetSize(self.___, "HPDF_PAGE_SIZE_" .. size:upper(), 
+										"HPDF_PAGE_" .. direction:upper())
 end
 
 function page:text_leading(leading)
@@ -244,12 +240,26 @@ function page:text_out(x, y, text)
 end
 
 function page:text_rect(left, top, right, bottom, text, align, len)
-	return libharu.HPDF_Page_TextRect(self.___, left, top, right, bottom, text, align, len)
+	return libharu.HPDF_Page_TextRect(self.___, left, top, right, 
+				bottom, text, "HPDF_TALIGN_" .. align:upper(), len)
 end
 
 function page:end_text()
 	return libharu.HPDF_Page_EndText(self.___)
 end
+
+function page:gsave()
+	return libharu.HPDF_Page_GSave(self.___)
+end
+
+function page:grestore()
+	return libharu.HPDF_Page_GRestore(self.___)
+end
+
+function page:concat(a, b, c, d, x, y)
+	return libharu.HPDF_Page_Concat(self.___, a, b, c, d, x, y);
+end
+
 
 -- helpers
 function string.ends(String,End)
