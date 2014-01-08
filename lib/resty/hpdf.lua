@@ -99,6 +99,12 @@ void * HPDF_Page_Rectangle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL w
 void * HPDF_Page_Stroke(HPDF_Page page);
 void * HPDF_Page_GSave(HPDF_Page page);
 void * HPDF_Page_GRestore(HPDF_Page page);
+void * HPDF_Page_GetLineWidth(HPDF_Page page);
+void * HPDF_Page_MoveTextPos(HPDF_Page page, HPDF_REAL x, HPDF_REAL y);
+void * HPDF_Page_MoveTo(HPDF_Page page, HPDF_REAL x, HPDF_REAL y);
+void * HPDF_Page_LineTo(HPDF_Page page, HPDF_REAL x, HPDF_REAL y);
+void * HPDF_Page_SetLineWidth(HPDF_Page page, HPDF_REAL line_width);
+void * HPDF_Page_SetGrayFill(HPDF_Page page, HPDF_REAL gray);
 void * HPDF_Page_SetGrayStroke(HPDF_Page page, HPDF_REAL gray);
 void * HPDF_Page_Circle(HPDF_Page page, HPDF_REAL x, HPDF_REAL y, HPDF_REAL ray);
 void * HPDF_Page_Concat(HPDF_Page page,HPDF_REAL a, HPDF_REAL b, HPDF_REAL c, HPDF_REAL d, 
@@ -197,8 +203,8 @@ end
 
 function doc.font:labels(num, style, first, prefix)
 	return libharu.HPDF_AddPageLabel(self.doc.___, 
-			num, "HPDF_PAGE_NUM_STYLE_" .. style:upper(), 
-			first, prefix)
+					num, "HPDF_PAGE_NUM_STYLE_" .. style:upper(), 
+					first, prefix)
 end
 
 -- doc.pages 
@@ -217,7 +223,7 @@ end
 
 function page:set_size(size, direction)
 	return libharu.HPDF_Page_SetSize(self.___, "HPDF_PAGE_SIZE_" .. size:upper(), 
-					"HPDF_PAGE_" .. direction:upper())
+										"HPDF_PAGE_" .. direction:upper())
 end
 
 function page:text_leading(leading)
@@ -281,9 +287,132 @@ function page:text_show(text)
 	return libharu.HPDF_Page_ShowText(self.___, text)
 end
 
+function page:height()
+	return libharu.HPDF_Page_GetHeight(self.___)
+end
+
+function page:width()
+	return libharu.HPDF_Page_GetWidth(self.___)
+end
+
+function page:set_gray_fill(gray)
+	return libharu.HPDF_Page_SetGrayFill(self.___, gray)
+end
+
+function page:set_line_width(width)
+	return libharu.HPDF_Page_SetLineWidth(self.___, width)
+end
+
+function page:get_line_width()
+	return libharu.HPDF_Page_GetLineWidth(self.___)
+end
+
+function page:move_to(x, y)
+	return libharu.HPDF_Page_MoveTo(self.___, x, y)
+end
+
+function page:line_to(x, y)
+	return libharu.HPDF_Page_LineTo(self.___, x, y)
+end
+
+function page:move_text_pos(x, y)
+	return libharu.HPDF_Page_MoveTextPos(self.___, x, y)
+end
+
+
 -- helpers
 function string.ends(String,End)
    return End=='' or string.sub(String,-string.len(End))==End
+end
+
+function grid(doc, page)
+	-- make a function
+  local height = page:height()
+  local width = page:width()
+  local font = doc.font:get("Helvetica", nil)
+
+  page:set_font_and_size(font, 5)
+  page:set_gray_fill(0.5)
+  page:gray_stroke(0.8)
+
+  -- Draw horizontal lines
+  local y = 0
+  while y < height do
+    if y % 10 == 0 then
+      page:set_line_width(0.5)
+    else
+      if page:get_line_width() ~= 0.25 then
+        page:set_line_width(0.25)
+      end -- if
+    end -- if
+    page:move_to(0, y)
+    page:line_to(width, y)
+    page:stroke()
+    if (y % 10 == 0) and (y > 0) then
+      page:gray_stroke(0.5)
+      page:move_to(0, y)
+      page:line_to(5, y)
+      page:stroke()
+      page:gray_stroke(0.8)
+    end -- if
+    y = y + 5
+  end -- while
+
+  -- Draw vertical lines
+  local x = 0
+  while x < width do
+    if x % 10 == 0 then
+      page:set_line_width(0.5)
+    else
+      if page:get_line_width() ~= 0.25 then
+        page:set_line_width(0.25)
+      end -- if
+    end -- if
+    page:move_to(x, 0)
+    page:line_to(x, height)
+    page:stroke()
+    if (x % 50 == 0) and (x > 0) then
+      page:gray_stroke(0.5)
+      page:move_to(x, 0)
+      page:line_to(x, 5)
+      page:stroke()
+      page:move_to(x, height)
+      page:line_to(x, height - 5)
+      page:stroke()
+      page:gray_stroke( 0.8)
+    end -- if
+    x = x + 5
+  end -- while
+
+  -- Draw horizontal text
+  y = 0
+  while y < height do
+    if (y % 10 == 0) and (y > 0) then
+      page:begin_text()
+      page:move_text_pos(5, y - 2)
+      page:text_show(tostring(y))
+      page:end_text()
+    end -- if
+    y = y + 5
+  end -- while
+
+  -- Draw vertical text
+  x = 0
+  while x < width do
+    if (x % 50 == 0) and (x > 0) then
+      page:begin_text()
+      page:move_text_pos(x, 5)
+      page:text_show(tostring(x))
+      page:end_text()
+      page:begin_text()
+      page:move_text_pos(x, height - 10)
+      page:text_show(tostring(x))
+      page:end_text()
+    end -- if
+    x = x + 5
+  end -- while
+  page:set_gray_fill(0)
+  page:gray_stroke(0)
 end
 
 return doc
